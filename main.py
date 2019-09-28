@@ -1,9 +1,37 @@
 import pgzrun
 import random
-#import pygame
+import pygame
 
 def start_game():
-    pass
+    global gamescreen,lchek,lchekOammo,itemC,ammo,health,Time,TimeOver,startOtime,score,damage
+    gamescreen = 1
+    lchek = 1
+    lchekOammo = 1
+    itemC = 0
+    ammo = 100
+    health = 4
+    Time = 0
+    TimeOver = 5
+    startOtime = 1
+    score = 0
+    damage = 0
+    ship.pos = 350.5,950
+    shiphit.pos = 350.5,958
+
+def end_game():
+    global gamescreen
+    laser.clear()
+    laser1.clear()
+    laser2.clear()
+    meteo.clear()
+    meteo1.clear()
+    meteo2.clear()
+    meteo3.clear()
+    ammoI.clear()
+    bufI.clear()
+    healI.clear()
+    gamescreen = 2
+
 
 WIDTH = 700
 HEIGHT = 1000
@@ -13,7 +41,6 @@ ship = Actor('ship',center=(350.5,950))
 shiphit = Actor('shiphit',center=(350.5,958))
 healthBar = Actor('he4',topright=(690,20))
 Ibar = Actor('ibar0',topright=(690,50))
-startB = Actor('startb',center=(350.5,750))
 gamescreen = 0
 laser = []
 laser1 = []
@@ -31,7 +58,7 @@ itemC = 0
 ammo = 100
 health = 4
 Time = 0
-TimeOver = 0
+TimeOver = 5
 startOtime = 1
 score = 0
 damage = 0
@@ -39,8 +66,10 @@ damage = 0
 def draw():
     global lchek,lchekOammo,itemC,Time,ammo,TimeOver,startOtime
     if gamescreen == 0:
+        screen.fill((201,0,0))
+        bg.draw()
+        bg2.draw()
         screen.blit('mainmenu',(0,0))
-        startB.draw()
     if gamescreen == 1:
         screen.fill((201,0,0))
         bg.draw()
@@ -83,6 +112,13 @@ def draw():
         else:
             TimeOver = 10
             startOtime = 1
+    if gamescreen == 2:
+        screen.fill((201,0,0))
+        bg.draw()
+        bg2.draw()
+        screen.draw.text("GameOver",midtop=(350.5,280),fontsize=100,color="cyan")
+        screen.draw.text("Your Score : "+str(score),midtop=(350.5,380),fontsize=100,color="cyan")
+
 
 #in draw     
 def keySPACE():
@@ -119,11 +155,18 @@ def outAmScreate():
     global lchekOammo
     lchekOammo = 1
 
-def on_mouse_down(pos):
+def on_key_down(key):
     global gamescreen
+    if key == keys.F:
+        screen.surface = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN)
     if gamescreen == 0:
-        if startB.collidepoint(pos):
-            gamescreen = 1
+        if key == keys.SPACE or key == keys.RETURN:
+            start_game()
+    if gamescreen == 2:
+        if key == keys.SPACE:
+            start_game()
+        if key == keys.RETURN:
+            quit()
 
 def update():
     global ammo,itemC,Time,health,startOtime,damage
@@ -142,8 +185,10 @@ def update():
         laserControl()
         #ship control
         shipControl()
-        #background
-        bgControl()
+        if health <= 0 or TimeOver <= 0 :
+            end_game() 
+    #background
+    bgControl()
 
 #inUpdate
 def ItemControl():
@@ -480,19 +525,18 @@ def timeOcount():
     if startOtime == 0:
         if TimeOver > 0:
             TimeOver -= 1
-        else:
-            pass
-            #end_game()
 def spawnMeteo():
-    R = random.randint(1,4)
-    if R == 1:
-        meteo.append(Actor('meteor',midbottom=(random.randint(100,650),0)))
-    elif R == 2:
-        meteo1.append(Actor('meteor1',midbottom=(random.randint(100,650),0)))
-    elif R == 3:
-        meteo2.append(Actor('meteor2',midbottom=(random.randint(100,650),0)))
-    elif R == 4:
-        meteo3.append(Actor('meteor3',midbottom=(random.randint(100,650),0)))
+    global gamescreen
+    if gamescreen == 1:
+        R = random.randint(1,4)
+        if R == 1:
+            meteo.append(Actor('meteor',midbottom=(random.randint(100,650),0)))
+        elif R == 2:
+            meteo1.append(Actor('meteor1',midbottom=(random.randint(100,650),0)))
+        elif R == 3:
+            meteo2.append(Actor('meteor2',midbottom=(random.randint(100,650),0)))
+        elif R == 4:
+            meteo3.append(Actor('meteor3',midbottom=(random.randint(100,650),0)))
 
 clock.schedule_interval(spawnMeteo,0.3)
 clock.schedule_interval(timeCount,1.0)
