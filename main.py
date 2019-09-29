@@ -129,7 +129,6 @@ def draw():
         screen.blit('2',(163,700))
         screen.blit('3',(242.5,850))
 
-
 #in draw     
 def keySPACE():
     global ammo,lchek,lchekOammo,itemC
@@ -139,7 +138,6 @@ def keySPACE():
                 sounds.laser.play()
                 laser.append(Actor('mylaser',(ship.x,ship.y-55)))
                 ammo -= 1
-                #laser[-1].draw() 
             elif itemC == 1: # have item
                 laser1.append(Actor('mylaser',(ship.x-40,ship.y-20)))
                 laser2.append(Actor('mylaser',(ship.x+40,ship.y-20)))
@@ -148,8 +146,6 @@ def keySPACE():
                     ammo -= 1
                 else:
                     ammo -= 2
-                #laser1[-1].draw()
-                #laser2[-1].draw()
             lchek = 0
             clock.schedule(lasercreate,0.5)
         elif lchekOammo == 1 and ammo == 0:
@@ -201,9 +197,11 @@ def update():
         shipControl()
         if health <= 0 or TimeOver <= 0 :
             end_game() 
-    #if gamescreen == 0:
     #background
     bgControl()
+    #DEBUG
+    '''print("laser"+str(len(laser))+str(len(laser1))+str(len(laser2))+" meteo"+str(len(meteo))+str(len(meteo1))+str(len(meteo2))+str(len(meteo3))
+    +" Eff"+str(len(BomEff))+" Item"+str(len(ammoI))+str(len(bufI))+str(len(healI)))'''
 
 #inUpdate
 def ItemControl():
@@ -223,7 +221,6 @@ def ItemControl():
             bufI.remove(i)
             itemC = 1
             Time = 10
-            #clock.schedule(Lnormal,10)
         if i.y <= HEIGHT:
             i.y += 1
         else:
@@ -352,15 +349,15 @@ def updateITEM():
         Ibar.image = 'ibar0'
 
 def laserControl():
-    #if itemC == 0: #laser no item
+    #if itemC = 0 #laser no item
     for i in range(len(laser)):
         laser[i].y -= 7
     for i in range(len(laser)):
         if laser[i].y < -10 :
             laser.pop(i)
             break
-    #if itemC == 1:
-            #laser use item [1]
+    #if itemC = 1
+        #laser use item [1]
     for i in range(len(laser1)):
         laser1[i].y -= 5
     for i in range(len(laser1)):
@@ -472,12 +469,10 @@ def shipControl():
         if ship.left > 0:
             ship.x -= 5
             shiphit.x -= 5
-            #ship.image = 'shipl'
     elif keyboard.right or keyboard.d:
         if ship.right < WIDTH:
             ship.x += 5
             shiphit.x += 5
-            #ship.image = 'shipr'
     elif keyboard.up or keyboard.w:
         if ship.top > 0:
             ship.y -= 5
@@ -507,7 +502,6 @@ def meteoRemove(i):
     global score
     for n in laser:
         if n.colliderect(i):
-            #print("test")
             sounds.lhm.play()
             laser.remove(n)
             randomItem(i)
@@ -563,6 +557,5 @@ def spawnMeteo():
             meteo2.append(Actor('meteor2',midbottom=(random.randint(100,650),0)))
         elif R == 4:
             meteo3.append(Actor('meteor3',midbottom=(random.randint(100,650),0)))
-
 
 pgzrun.go()
