@@ -17,6 +17,9 @@ def start_game():
     damage = 0
     ship.pos = 350.5,950
     shiphit.pos = 350.5,958
+    clock.schedule_interval(spawnMeteo,0.3)
+    clock.schedule_interval(timeCount,1.0)
+    clock.schedule_interval(timeOcount,1.0)
 
 def end_game():
     global gamescreen
@@ -30,6 +33,10 @@ def end_game():
     ammoI.clear()
     bufI.clear()
     healI.clear()
+    BomEff.clear()
+    clock.unschedule(spawnMeteo)
+    clock.unschedule(timeCount)
+    clock.unschedule(timeOcount)
     gamescreen = 2
 
 
@@ -42,6 +49,7 @@ shiphit = Actor('shiphit',center=(350.5,958))
 healthBar = Actor('he4',topright=(690,20))
 Ibar = Actor('ibar0',topright=(690,50))
 gamescreen = 0
+FullSC = 0
 laser = []
 laser1 = []
 laser2 = []
@@ -49,6 +57,7 @@ meteo = []
 meteo1 = []
 meteo2 = []
 meteo3 = []
+BomEff = []
 ammoI = []
 bufI = []
 healI = []
@@ -65,15 +74,17 @@ damage = 0
 
 def draw():
     global lchek,lchekOammo,itemC,Time,ammo,TimeOver,startOtime
+    screen.fill((201,0,0))
+    bg.draw()
+    bg2.draw()
     if gamescreen == 0:
-        screen.fill((201,0,0))
-        bg.draw()
-        bg2.draw()
         screen.blit('mainmenu',(0,0))
+        screen.blit('1',(177.5,700))
+        screen.blit('4',(171.5,950))
     if gamescreen == 1:
-        screen.fill((201,0,0))
-        bg.draw()
-        bg2.draw()
+        #draw BomEff
+        for i in BomEff:
+            i.draw()
         shiphit.draw()
         ship.draw()
         #pass space
@@ -113,11 +124,10 @@ def draw():
             TimeOver = 10
             startOtime = 1
     if gamescreen == 2:
-        screen.fill((201,0,0))
-        bg.draw()
-        bg2.draw()
         screen.draw.text("GameOver",midtop=(350.5,280),fontsize=100,color="cyan")
         screen.draw.text("Your Score : "+str(score),midtop=(350.5,380),fontsize=100,color="cyan")
+        screen.blit('2',(163,700))
+        screen.blit('3',(242.5,850))
 
 
 #in draw     
@@ -156,16 +166,20 @@ def outAmScreate():
     lchekOammo = 1
 
 def on_key_down(key):
-    global gamescreen
-    if key == keys.F:
+    global gamescreen,FullSC
+    if key == keys.F and FullSC == 0:
+        FullSC = 1
         screen.surface = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN)
+    elif key == keys.F and FullSC == 1:
+        FullSC = 0
+        screen.surface = pygame.display.set_mode((WIDTH, HEIGHT))
     if gamescreen == 0:
-        if key == keys.SPACE or key == keys.RETURN:
+        if key == keys.RETURN:
             start_game()
     if gamescreen == 2:
-        if key == keys.SPACE:
-            start_game()
         if key == keys.RETURN:
+            start_game()
+        if key == keys.ESCAPE:
             quit()
 
 def update():
@@ -187,6 +201,7 @@ def update():
         shipControl()
         if health <= 0 or TimeOver <= 0 :
             end_game() 
+    #if gamescreen == 0:
     #background
     bgControl()
 
@@ -230,7 +245,7 @@ def Lasernormal():
         itemC = 0
 
 def meteorControl():
-    global damage,health
+    global damage,health,KEEP,meteoType
     for i in meteo:
         if i.colliderect(shiphit):
             sounds.hit.play()
@@ -241,7 +256,9 @@ def meteorControl():
             clock.schedule(shipNormal,0.1)
         c = meteoRemove(i)
         if c:
-            meteo.remove(i) 
+            BomEff.append(Actor('m0b',center=(i.x,i.y)))
+            meteo.remove(i)
+            clock.schedule(removeEff,0.1)
         elif i.y <= HEIGHT:
             i.y += 7
         else:
@@ -256,7 +273,9 @@ def meteorControl():
             clock.schedule(shipNormal,0.1)
         c = meteoRemove(i)
         if c:
-            meteo1.remove(i) 
+            BomEff.append(Actor('m1b',center=(i.x,i.y)))
+            meteo1.remove(i)
+            clock.schedule(removeEff,0.1)
         elif i.y <= HEIGHT:
             i.y += 6
         else:
@@ -271,7 +290,9 @@ def meteorControl():
             clock.schedule(shipNormal,0.1)
         c = meteoRemove(i)
         if c:
+            BomEff.append(Actor('m2b',center=(i.x,i.y)))
             meteo2.remove(i)
+            clock.schedule(removeEff,0.1)
         elif i.y <= HEIGHT:
             i.y += 5
         else:
@@ -286,7 +307,9 @@ def meteorControl():
             clock.schedule(shipNormal,0.1)
         c = meteoRemove(i)
         if c:
+            BomEff.append(Actor('m3b',center=(i.x,i.y)))
             meteo3.remove(i)
+            clock.schedule(removeEff,0.1)
         elif i.y <= HEIGHT:
             i.y += 4
         else:
@@ -472,6 +495,9 @@ def shipControl():
             ship.image = 'ship'
     
 #in meteorControl
+def removeEff():
+    BomEff.remove(BomEff[0])
+
 def shipNormal():
     global damage
     damage = 0
@@ -538,7 +564,5 @@ def spawnMeteo():
         elif R == 4:
             meteo3.append(Actor('meteor3',midbottom=(random.randint(100,650),0)))
 
-clock.schedule_interval(spawnMeteo,0.3)
-clock.schedule_interval(timeCount,1.0)
-clock.schedule_interval(timeOcount,1.0)
+
 pgzrun.go()
